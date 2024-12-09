@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Popular Books Visualization{% endblock %}
+
+{% block content %}
+<h1 class="text-center">Popular Books</h1>
+<div id="chart" style="width: 80%; margin: auto;"></div>
+
+<script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+<script>
+    fetch('/books/api/popular_books')
+        .then(response => response.json())
+        .then(data => {
+            const titles = data.map(book => book.title);
+            const reviewCounts = data.map(book => book.review_count);
+            const avgRatings = data.map(book => book.avg_rating);
+
+            const trace1 = {
+                x: titles,
+                y: reviewCounts,
+                type: 'bar',
+                name: 'Review Count',
+                marker: { color: 'blue' }
+            };
+
+            const trace2 = {
+                x: titles,
+                y: avgRatings,
+                type: 'bar',
+                name: 'Average Rating',
+                marker: { color: 'orange' }
+            };
+
+            const layout = {
+                title: 'Most Popular Books',
+                xaxis: {
+                    title: 'Book Titles',
+                    tickangle: -45, // Rotate x-axis labels
+                    tickfont: { size: 12 }, // Set appropriate font size
+                    automargin: true  // Ensure space for rotated labels
+                },
+                yaxis: {
+                    title: 'Count/Rating',
+                },
+                margin: {
+                    b: 150,  // Increase bottom margin for label spacing
+                    t: 50,   // Adjust top margin for title
+                    l: 50,   // Adjust left margin for y-axis
+                    r: 50    // Adjust right margin
+                },
+                barmode: 'group',
+                width: 1200,  // Increase chart width
+                height: 600   // Increase chart height
+            };
+
+            Plotly.newPlot('chart', [trace1, trace2], layout);
+        });
+</script>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1 class="text-center">Catalog</h1>
+
+    <!-- Filter Form -->
+    <form method="GET" action="{{ url_for('books.catalog') }}" class="mb-4">
+        <div class="row">
+            <!-- Book Dropdown -->
+            <div class="col-md-4">
+                <label for="book_filter">Book:</label>
+                <select class="form-control" id="book_filter" name="book_id">
+                    <option value="">All Books</option>
+                    {% for book in all_books %}
+                        <option value="{{ book['books_id'] }}" {% if request.args.get('book_id') == book['books_id'] %}selected{% endif %}>{{ book['title'] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Price Range -->
+            <div class="col-md-4">
+                <label for="price_filter">Price Range:</label>
+                <div class="d-flex">
+                    <input type="number" class="form-control me-2" name="min_price" placeholder="Min" value="{{ request.args.get('min_price') }}">
+                    <input type="number" class="form-control" name="max_price" placeholder="Max" value="{{ request.args.get('max_price') }}">
+                </div>
+            </div>
+
+            <!-- Ratings -->
+            <div class="col-md-4">
+                <label for="rating_filter">Ratings:</label>
+                <div class="d-flex">
+                    <input type="number" class="form-control me-2" name="min_rating" placeholder="Min" min="1" max="5" value="{{ request.args.get('min_rating') }}">
+                    <input type="number" class="form-control" name="max_rating" placeholder="Max" min="1" max="5" value="{{ request.args.get('max_rating') }}">
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-3 text-end">
+            <button type="submit" class="btn btn-primary">Apply Filters</button>
+            <a href="{{ url_for('books.catalog') }}" class="btn btn-secondary">Clear Filters</a>
+        </div>
+    </form>
+
+    <!-- Add Book Button -->
+    <a href="{{ url_for('books.add_book') }}" class="btn btn-primary mb-4">Add New Book</a>
+
+    <div class="container">
+        <div class="row">
+            {% for book in books %}
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title text-center">{{ book['title'] }}</h5>
+                            <p class="card-text text-center">{{ book['author'] }}</p>
+                            <p class="card-text text-center">${{ book['price'] }}</p>
+                            <p class="card-text">{{ book['description'] }}</p>
+                            <h6>Average Rating: {{ book['avg_rating'] | default('No reviews yet') if book['avg_rating'] is none else book['avg_rating'] | round(1) }}/5</h6>
+                            <a href="{{ url_for('books.book_details', book_id=book['books_id']) }}" class="btn btn-primary">View Details</a>
+                            <a href="{{ url_for('books.edit_book', book_id=book['books_id']) }}" class="btn btn-sm btn-warning mt-2">Edit</a>
+                            <form action="{{ url_for('books.delete_book', book_id=book['books_id']) }}" method="POST" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
